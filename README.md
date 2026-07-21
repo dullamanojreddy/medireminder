@@ -277,4 +277,3 @@ This project is developed for educational and research purposes.
 # ⭐ Support
 
 If you find MedReminder+ useful, consider giving this project a ⭐ star on GitHub.  
-Your support helps improve the project and encourages further development.
