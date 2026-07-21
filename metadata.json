@@ -1,0 +1,6 @@
+{
+  "name": "MedReminder+",
+  "description": "An elegant, production-ready caregiver-focused full-stack medical reminder platform featuring robust schedule, snooze, and refill management engines.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
