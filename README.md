@@ -300,24 +300,6 @@ Caregiver dashboard provides:
 
 ---
 
-# 🖼 Application Screenshots
-
-> Replace these placeholders with actual screenshots from your project.
-
-| Module              | Screenshot                          |
-| -------------------- | ----------------------------------- |
-| Dashboard           | `docs/screenshots/dashboard.png`    |
-| Login               | `docs/screenshots/login.png`        |
-| Register            | `docs/screenshots/register.png`     |
-| Patient List        | `docs/screenshots/patients.png`     |
-| Add Patient         | `docs/screenshots/add-patient.png`  |
-| Medicine List       | `docs/screenshots/medicines.png`    |
-| Add Medicine        | `docs/screenshots/add-medicine.png` |
-| Medication Tracking | `docs/screenshots/tracking.png`     |
-| WhatsApp Reminder   | `docs/screenshots/whatsapp.png`     |
-
----
-
 # 🏗 System Architecture
 
 ```text
@@ -551,7 +533,7 @@ Stores patient demographic and contact information.
   "name": "Ramesh",
   "dob": "1990-01-01",
   "gender": "Male",
-  "phone": "+919966007804",
+  "phone": "+919966000000",
   "preferredLanguage": "English",
   "emergencyContactName": "Suman",
   "emergencyContactPhone": "+919876543211"
