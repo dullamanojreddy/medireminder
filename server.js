@@ -1,6 +1,6 @@
+import "dotenv/config";
 import express from "express";
 import path from "path";
-import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
 
 // Backend integrations
@@ -9,10 +9,7 @@ import backendApp from "./backend/src/app.js";
 import { startScheduler } from "./backend/src/scheduler/reminderScheduler.js";
 import Logger from "./backend/src/utils/Logger.js";
 
-// Load environmental parameters
-dotenv.config();
-
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 async function startServer() {
   const app = express();

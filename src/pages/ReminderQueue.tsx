@@ -35,16 +35,41 @@ export default function ReminderQueue() {
     loadReminders();
   }, []);
 
-  // Filter Logic
-  const filteredReminders = reminders.filter((r) => {
-    const matchesSearch = 
-      r.patientName.toLowerCase().includes(search.toLowerCase()) ||
-      r.medicineName.toLowerCase().includes(search.toLowerCase());
+  // Filter and Sort Logic
+  const filteredReminders = reminders
+    .filter((r) => {
+      const matchesSearch = 
+        r.patientName.toLowerCase().includes(search.toLowerCase()) ||
+        r.medicineName.toLowerCase().includes(search.toLowerCase());
 
-    const matchesStatus = statusFilter === "All" || r.status === statusFilter;
+      const matchesStatus = statusFilter === "All" || r.status === statusFilter;
 
-    return matchesSearch && matchesStatus;
-  });
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      // Status priority: active reminders first, then completed, then expired/failed
+      const statusPriority = {
+        "PENDING": 1,
+        "SENT": 2,
+        "SNOOZED": 3,
+        "COMPLETED": 4,
+        "EXPIRED": 5,
+        "FAILED": 6
+      };
+
+      const priorityA = statusPriority[a.status] || 99;
+      const priorityB = statusPriority[b.status] || 99;
+
+      // If different status priority, sort by priority first
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+
+      // Same status priority, sort by scheduledTime ascending (nearest first)
+      const timeA = new Date(a.scheduledTime).getTime();
+      const timeB = new Date(b.scheduledTime).getTime();
+      return timeA - timeB;
+    });
 
   return (
     <div className="flex flex-col gap-8 text-left">
@@ -86,7 +111,7 @@ export default function ReminderQueue() {
             <span>Status:</span>
           </div>
 
-          <div className="relative">
+            <div className="relative">
             <select
               id="status-filter-select"
               value={statusFilter}
@@ -94,7 +119,8 @@ export default function ReminderQueue() {
               className="h-[40px] pl-4 pr-10 bg-gray-50 border border-brand-border rounded-input text-sm font-semibold text-text-primary focus:outline-none focus:ring-1 focus:ring-primary focus:bg-white transition-all cursor-pointer appearance-none"
             >
               <option value="All">All Alarms</option>
-              <option value="Pending">Pending</option>
+              <option value="PENDING">Pending</option>
+              <option value="SENT">Sent</option>
               <option value="Completed">Completed</option>
               <option value="Snoozed">Snoozed</option>
               <option value="Expired">Expired (Missed)</option>
@@ -141,9 +167,9 @@ export default function ReminderQueue() {
                 <div
                   key={r.id}
                   className={`grid grid-cols-1 md:grid-cols-12 gap-4 items-center px-6 py-5 bg-white border border-brand-border rounded-card hover:shadow-soft transition-all text-left ${
-                    r.status === "Expired" 
+                    r.status === "EXPIRED" 
                       ? "bg-red-50/10 border-red-100" 
-                      : r.status === "Completed"
+                      : r.status === "COMPLETED"
                       ? "bg-green-50/5"
                       : ""
                   }`}
@@ -151,9 +177,9 @@ export default function ReminderQueue() {
                   {/* Scheduled Time */}
                   <div className="col-span-1 md:col-span-2 flex items-center gap-2.5">
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                      r.status === "Completed"
+                      r.status === "COMPLETED"
                         ? "bg-green-50 text-success"
-                        : r.status === "Expired"
+                        : r.status === "EXPIRED"
                         ? "bg-red-50 text-danger"
                         : "bg-blue-50 text-primary animate-pulse"
                     }`}>
@@ -190,7 +216,7 @@ export default function ReminderQueue() {
 
                   {/* Attempt Logs & Status Badge */}
                   <div className="col-span-1 md:col-span-3 flex items-center md:flex-col md:items-start gap-4 md:gap-1.5">
-                    <Badge type={r.status}>{r.status}</Badge>
+                    <Badge type={r.status.toLowerCase() as any}>{r.status}</Badge>
                     <span className="text-xs font-semibold text-text-secondary leading-tight">
                       Alert Attempts: <span className="font-bold text-text-primary">{r.attempt}</span>
                     </span>

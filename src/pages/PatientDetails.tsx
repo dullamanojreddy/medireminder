@@ -36,8 +36,8 @@ export default function PatientDetails() {
     try {
       const logs = await medicineService.getAdherenceHistory(patientId);
       setAdherenceLogs(logs || []);
-    } catch (err) {
-      console.error("Failed to load adherence history:", err);
+    } catch {
+      // Silently handle - logs will be empty and UI shows no data state
     }
   }, []);
 

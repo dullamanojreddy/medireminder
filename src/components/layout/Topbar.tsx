@@ -19,7 +19,7 @@ export default function Topbar({ id, onMenuToggle }: TopbarProps) {
   const [caregiverEmail, setCaregiverEmail] = useState("manojreddy@example.com");
   const [caregiverPhone, setCaregiverPhone] = useState("+91 98765 43210");
   const [caregiverRole, setCaregiverRole] = useState("Primary Caregiver");
-  const [caregiverOrganization, setCaregiverOrganization] = useState("MedReminder+ Health Services");
+  const [caregiverOrganization, setCaregiverOrganization] = useState("Caregiver Dashboard");
 
   // Load caregiver info from local storage if available
   useEffect(() => {

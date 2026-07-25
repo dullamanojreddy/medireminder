@@ -21,12 +21,20 @@ export function PatientProvider({ children }: { children: React.ReactNode }) {
 
   const refreshPatients = async () => {
     const token = localStorage.getItem("authToken");
-    if (token) {
-      try {
-        const apiPatients = await patientService.getPatients();
-        setPatients(apiPatients);
-      } catch (err) {
-        console.error("Failed to fetch patients", err);
+    if (!token) {
+      // No token available, skip fetching
+      return;
+    }
+
+    try {
+      const apiPatients = await patientService.getPatients();
+      setPatients(apiPatients);
+    } catch (err: any) {
+      // If 401, clear invalid token
+      if (err.response?.status === 401) {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("caregiverName");
+        localStorage.removeItem("caregiverEmail");
       }
     }
   };

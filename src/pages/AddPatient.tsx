@@ -7,13 +7,44 @@ import { useToast } from "../components/Toast";
 import Card from "../components/Card";
 import Input from "../components/Input";
 import Button from "../components/Button";
+import { Patient } from "../mock/mockPatients";
+
+// Phone normalization function (mirrors backend logic)
+const normalizePhone = (phone: string): string => {
+  if (!phone || typeof phone !== 'string') return '';
+  
+  const trimmed = phone.trim();
+  const hasPlus = trimmed.startsWith('+');
+  const digitsOnly = trimmed.replace(/\D/g, '');
+  
+  if (digitsOnly.length === 0) return '';
+  
+  if (hasPlus) {
+    return '+' + digitsOnly;
+  }
+  
+  let number = digitsOnly;
+  if (number.startsWith('0')) {
+    number = number.substring(1);
+  }
+  
+  if (number.length === 10) {
+    return '+91' + number;
+  }
+  
+  if (number.length === 12 && number.startsWith('91')) {
+    return '+' + number;
+  }
+  
+  return '+' + number;
+};
 
 export default function AddPatient() {
   const { addPatient } = usePatients();
   const { addToast } = useToast();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<Omit<Patient, "id" | "createdAt" | "medicines">>({
     name: "",
     dob: "",
     gender: "Female",
@@ -38,8 +69,8 @@ export default function AddPatient() {
 
     if (!form.phone) {
       tempErrors.phone = "Phone number is required.";
-    } else if (!/^\d{10}$/.test(form.phone)) {
-      tempErrors.phone = "Phone number must be exactly 10 digits.";
+    } else if (!/^\d{10}$/.test(form.phone) && !/^\+[1-9]\d{6,14}$/.test(form.phone)) {
+      tempErrors.phone = "Phone number must be 10 digits or valid E.164 format (e.g., +919966007804).";
     }
 
     if (!form.emergencyContact.trim()) {
@@ -63,11 +94,14 @@ export default function AddPatient() {
 
     setIsSubmitting(true);
     try {
+      // Normalize phone number before sending to backend
+      const normalizedPhone = normalizePhone(form.phone);
+      
       const created = await addPatient({
         name: form.name,
         dob: form.dob,
         gender: form.gender,
-        phone: form.phone,
+        phone: normalizedPhone,
         language: form.language,
         emergencyContact: form.emergencyContact,
         relationship: form.relationship,
@@ -75,8 +109,20 @@ export default function AddPatient() {
       });
       addToast(`${created.name} registered successfully.`, "success");
       navigate(`/patients/${created.id}`); // Land directly on patient details page to add medicines
-    } catch (err) {
-      addToast("Failed to register patient profile.", "danger");
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        addToast("Session expired. Please log in again.", "danger");
+        // Clear invalid token and redirect to login
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("caregiverName");
+        localStorage.removeItem("caregiverEmail");
+        setTimeout(() => navigate("/login"), 2000);
+      } else if (err.response?.status === 400) {
+        const errorMsg = err.response?.data?.message || "Validation error";
+        addToast(`Error: ${errorMsg}`, "danger");
+      } else {
+        addToast("Failed to register patient profile. Please try again.", "danger");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -146,7 +192,7 @@ export default function AddPatient() {
                 <select
                   id="patient-gender"
                   value={form.gender}
-                  onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                  onChange={(e) => setForm({ ...form, gender: e.target.value as "Female" | "Male" | "Other" })}
                   className="w-full h-[48px] px-4 bg-white border border-brand-border rounded-input text-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                 >
                   <option value="Female">Female</option>
@@ -175,7 +221,7 @@ export default function AddPatient() {
                 <select
                   id="patient-language"
                   value={form.language}
-                  onChange={(e) => setForm({ ...form, language: e.target.value })}
+                  onChange={(e) => setForm({ ...form, language: e.target.value as "English" | "Hindi" | "Telugu" | "Tamil" | "Kannada" | "Marathi" | "Bengali" | "Punjabi" | "Gujarati" })}
                   className="w-full h-[48px] px-4 bg-white border border-brand-border rounded-input text-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                 >
                   {languages.map((lang) => (
