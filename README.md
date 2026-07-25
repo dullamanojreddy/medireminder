@@ -1270,10 +1270,6 @@ This project demonstrates practical implementation of:
 
 ---
 
-# 📜 License
-
-This project is developed for educational and research purposes.
----
 
 # ⭐ Support
 
