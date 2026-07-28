@@ -419,9 +419,6 @@ MedReminder+
 │
 ├── public/
 │
-├── docs/
-│   └── screenshots/
-│
 ├── package.json
 ├── vite.config.ts
 ├── README.md
